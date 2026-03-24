@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wildlife Rescue Mission</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: radial-gradient(circle at top, #ffe7f2 0%, #fff8fb 25%, #edf9ff 55%, #f2fff3 100%);
+      min-height: 100vh;
+      color: #243043;
+    }
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      position: relative;
+    }
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(55px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob.a { width: 280px; height: 280px; background: rgba(251, 207, 232, 0.35); top: -70px; left: -60px; }
+    .blob.b { width: 320px; height: 320px; background: rgba(165, 243, 252, 0.28); top: 100px; right: -40px; }
+    .blob.c { width: 320px; height: 320px; background: rgba(187, 247, 208, 0.22); bottom: -40px; left: 32%; }
+
+    .sticker {
+      position: fixed;
+      padding: 8px 14px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(15,23,42,0.08);
+      font-size: 14px;
+      font-weight: 700;
+      animation: floaty 3.2s ease-in-out infinite;
+      z-index: 1;
+    }
+    .s1 { top: 20px; left: 20px; }
+    .s2 { top: 70px; right: 30px; }
+    .s3 { bottom: 95px; left: 28px; }
+    .s4 { bottom: 28px; right: 38px; }
+
+    @keyframes floaty {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+    @keyframes popIn {
+      0% { transform: scale(0.9); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+      100% { transform: scale(1); }
+    }
+
+    .card {
+      background: rgba(255,255,255,0.88);
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,0.75);
+      box-shadow: 0 18px 50px rgba(15,23,42,0.10);
+      backdrop-filter: blur(10px);
+      position: relative;
+      z-index: 2;
+    }
+    .card-body { padding: 28px; }
+    .hero-grid, .play-grid, .finish-grid { display: grid; gap: 24px; }
+    .hero-grid { grid-template-columns: 1.2fr 0.8fr; }
+    .play-grid { grid-template-columns: 1fr 280px; }
+    .finish-grid { grid-template-columns: 1.1fr 0.9fr; }
+    .top-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #fbcfe8;
+      background: #fff1f7;
+      color: #be185d;
+    }
+    .pill.cyan { background: #ecfeff; color: #0f766e; border-color: #a5f3fc; }
+    .pill.violet { background: #ede9fe; color: #6d28d9; border-color: #c4b5fd; }
+    .title {
+      font-size: 52px;
+      font-weight: 900;
+      line-height: 1.05;
+      margin: 8px 0 14px;
+      color: #111827;
+    }
+    .subtitle {
+      color: #4b5563;
+      line-height: 1.75;
+      font-size: 17px;
+      max-width: 760px;
+    }
+    .hero-animals { display: flex; gap: 12px; margin-bottom: 14px; }
+    .hero-animal {
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fce7f3;
+      font-size: 32px;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.05);
+    }
+    .btn-row { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
+    button {
+      font-family: inherit;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    }
+    button:hover { transform: translateY(-2px); }
+    .btn {
+      border-radius: 18px;
+      padding: 14px 20px;
+      font-weight: 800;
+      font-size: 15px;
+    }
+    .btn-primary {
+      background: #ec4899;
+      color: white;
+      box-shadow: 0 10px 24px rgba(236,72,153,0.22);
+    }
+    .btn-secondary {
+      background: #fff1f7;
+      color: #be185d;
+      border: 1px solid #fbcfe8;
+    }
+
+    .section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+    .small-muted { font-size: 13px; color: #6b7280; }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .dashboard-card {
+      border-radius: 22px;
+      padding: 14px;
+      background: #fdf2f8;
+      border: 1px solid #fbcfe8;
+    }
+    .dashboard-card.done {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+    }
+    .dash-emoji { font-size: 28px; margin-bottom: 8px; }
+    .dash-title { font-weight: 800; font-size: 14px; color: #111827; }
+    .stars { display: flex; gap: 4px; margin-top: 8px; }
+    .star { font-size: 16px; opacity: 0.28; }
+    .star.active { opacity: 1; filter: drop-shadow(0 2px 4px rgba(245,158,11,0.25)); }
+
+    .progress-wrap {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg,#ec4899,#22d3ee);
+      width: 0%;
+      transition: width 220ms ease;
+    }
+    .stat-box {
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid #fce7f3;
+      background: linear-gradient(135deg,#fff1f7,#ecfeff);
+    }
+    .stat-number {
+      font-size: 34px;
+      font-weight: 900;
+      color: #111827;
+    }
+    .between { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .feature-card {
+      border-radius: 24px;
+      padding: 18px;
+      border: 1px solid #fbcfe8;
+      background: #fdf2f8;
+    }
+
+    .play-header {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 20px;
+      align-items: start;
+    }
+    .level-info { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .current-animal {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      background: linear-gradient(135deg,#fce7f3,#ffffff);
+      box-shadow: 0 10px 22px rgba(15,23,42,0.05);
+    }
+    .level-title { font-size: 34px; font-weight: 900; color: #111827; }
+    .white-box {
+      border-radius: 24px;
+      background: white;
+      border: 1px solid #fce7f3;
+      padding: 18px;
+    }
+    .hearts { display: flex; gap: 8px; align-items: center; }
+    .heart { font-size: 24px; opacity: 0.25; }
+    .heart.active { opacity: 1; animation: pulse 0.35s ease; }
+
+    .combo-box { border-color: #ddd6fe; background: #f5f3ff; }
+    .combo-title { color: #6d28d9; font-weight: 800; }
+
+    .play-grid-main {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+      margin-top: 22px;
+      align-items: start;
+    }
+    .combo-burst {
+      position: absolute;
+      top: -12px;
+      right: 8px;
+      z-index: 4;
+      background: #8b5cf6;
+      color: white;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: 800;
+      box-shadow: 0 14px 30px rgba(139,92,246,0.28);
+      animation: popIn 0.18s ease;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+    }
+    .option-card {
+      text-align: left;
+      border-radius: 24px;
+      padding: 18px;
+      background: white;
+      cursor: pointer;
+      border: 1px solid #fbcfe8;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    }
+    .option-emoji { font-size: 24px; margin-bottom: 10px; }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .search-cell {
+      aspect-ratio: 1/1;
+      border-radius: 22px;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 14px;
+      border: 1px solid #bbf7d0;
+      background: #ecfdf5;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.04);
+    }
+
+    .helper-box {
+      border-radius: 24px;
+      background: linear-gradient(135deg,#ffffff,#fff1f7);
+      border: 1px solid #fce7f3;
+      padding: 18px;
+    }
+    .helper-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .helper-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 22px;
+      background: #fce7f3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,0.45);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 50;
+    }
+    .modal.show { display: flex; }
+    .modal-card { width: 100%; max-width: 560px; animation: popIn 0.18s ease; }
+    .center { text-align: center; }
+    .modal-big { font-size: 54px; margin-bottom: 10px; }
+    .modal-title { font-size: 28px; font-weight: 900; color: #111827; margin-bottom: 10px; }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .play-header, .play-grid-main, .finish-grid { grid-template-columns: 1fr; }
+      .feature-grid { grid-template-columns: repeat(2, 1fr); }
+      .title { font-size: 36px; }
+      .level-title { font-size: 28px; }
+      .sticker { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+  <div class="sticker s1">🦧 Forest friend</div>
+  <div class="sticker s2">🐘 Gentle giant</div>
+  <div class="sticker s3">🐢 Ocean buddy</div>
+  <div class="sticker s4">🐾 Save wildlife</div>
+
+  <div class="page">
+    <div class="hero-grid">
+      <div class="card">
+        <div class="card-body">
+          <div class="top-row">
+            <span class="pill">Cute Animal Game</span>
+            <span class="pill cyan">Wildlife Campaign</span>
+            <span class="pill violet">🎮 Real Game UI</span>
+          </div>
+          <div class="hero-animals">
+            <div class="hero-animal">🦧</div>
+            <div class="hero-animal">🐘</div>
+            <div class="hero-animal">🐢</div>
+          </div>
+          <div class="title">Wildlife Rescue Mission</div>
+          <div class="subtitle">A playful mini-game where cute animals become your teammates. Clear stages, beat the timer, build combos, and unlock stars like a real game page.</div>
+          <div class="btn-row">
+            <button id="startBtn" class="btn btn-primary">Start Mission</button>
+            <button id="meetBtn" class="btn btn-secondary">Meet the Animals</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="section-title">Game Dashboard</div>
+          <div id="dashboardGrid" class="dashboard-grid"></div>
+          <div style="height:18px"></div>
+          <div class="small-muted">Campaign Progress</div>
+          <div style="height:8px"></div>
+          <div class="progress-wrap"><div id="campaignProgress" class="progress-bar"></div></div>
+          <div style="height:16px"></div>
+          <div class="stat-box">
+            <div class="small-muted">Total Score</div>
+            <div id="scoreNumber" class="stat-number">0</div>
+            <div style="margin-top:10px" class="between small-muted">
+              <span>Stars earned</span>
+              <span id="starTotal">0/9</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="introCard" class="card" style="margin-top:24px;">
+      <div class="card-body">
+        <div style="display:flex;align-items:center;gap:8px;color:#db2777;font-weight:800;margin-bottom:10px;">✨ Game features added</div>
+        <div class="section-title">Now it feels more like a real game</div>
+        <div class="subtitle" style="font-size:16px;max-width:none;">This is a single-file HTML version. You can save it as <strong>.html</strong>, double-click to open it, and later upload it directly to a hosting platform.</div>
+        <div class="feature-grid">
+          <div class="feature-card"><div style="font-size:28px;margin-bottom:10px;">❤️</div><div style="font-weight:800;">3 Hearts</div></div>
+          <div class="feature-card"><div style="font-size:28px;margin-bottom:10px;">⭐</div><div style="font-weight:800;">Star Rating</div></div>
+          <div class="feature-card"><div style="font-size:28px;margin-bottom:10px;">⏱️</div><div style="font-weight:800;">Countdown</div></div>
+          <div class="feature-card"><div style="font-size:28px;margin-bottom:10px;">⚡</div><div style="font-weight:800;">Combo Bonus</div></div>
+          <div class="feature-card"><div style="font-size:28px;margin-bottom:10px;">🎉</div><div style="font-weight:800;">Popup Results</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="gameCard" class="card hidden" style="margin-top:24px;">
+      <div class="card-body">
+        <div class="play-header">
+          <div>
+            <div class="level-info">
+              <div id="currentAnimal" class="current-animal">🦧</div>
+              <div>
+                <div id="levelPills" class="top-row" style="margin-bottom:8px;"></div>
+                <div id="levelTitle" class="level-title">Level 1</div>
+              </div>
+            </div>
+            <div id="levelIntro" class="subtitle" style="font-size:16px;max-width:none;margin-top:8px;"></div>
+          </div>
+          <div style="display:grid;gap:12px;">
+            <div class="stat-box">
+              <div class="small-muted">Mission Score</div>
+              <div id="missionScore" class="stat-number" style="font-size:30px;">0</div>
+            </div>
+            <div class="white-box">
+              <div class="between"><div class="small-muted">Lives</div><div id="livesText" style="font-weight:700;font-size:14px;">3/3</div></div>
+              <div style="height:8px"></div>
+              <div id="heartsWrap" class="hearts"></div>
+            </div>
+            <div class="white-box">
+              <div class="between"><div class="small-muted">⏱ Time Left</div><div id="timeText" style="font-weight:800;">35s</div></div>
+              <div style="height:8px"></div>
+              <div class="progress-wrap"><div id="timerProgress" class="progress-bar"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="play-grid-main">
+          <div style="position:relative;">
+            <div id="comboBurst" class="combo-burst hidden">⚡ Combo Bonus!</div>
+            <div id="playArea"></div>
+          </div>
+          <div style="display:grid;gap:14px;">
+            <div class="helper-box">
+              <div class="helper-top">
+                <div id="helperAvatar" class="helper-avatar">🦧</div>
+                <div>
+                  <div id="helperName" style="font-weight:800;color:#111827;">Orangutan</div>
+                  <div class="small-muted">Animal Helper</div>
+                </div>
+              </div>
+              <div id="helperLine" style="color:#4b5563;line-height:1.6;font-size:14px;"></div>
+              <div style="height:10px"></div>
+              <div id="animalNote" class="small-muted"></div>
+            </div>
+            <div class="white-box">
+              <div style="font-size:13px;color:#db2777;font-weight:800;margin-bottom:8px;">Mission Feedback</div>
+              <div id="feedbackText" style="color:#374151;line-height:1.7;">Complete the mission tasks to protect wildlife and help your animal friend feel safe and happy.</div>
+            </div>
+            <div class="white-box combo-box">
+              <div class="between"><div class="combo-title">⚡ Combo Meter</div><div id="comboText" class="combo-title">x0</div></div>
+              <div style="height:8px"></div>
+              <div class="progress-wrap"><div id="comboProgress" class="progress-bar" style="background:linear-gradient(90deg,#a78bfa,#8b5cf6);"></div></div>
+              <div style="height:8px"></div>
+              <div class="small-muted">Make correct moves in a row to earn bonus points.</div>
+            </div>
+            <button id="retryBtn" class="btn btn-secondary">↻ Retry Stage</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="finishCard" class="card hidden" style="margin-top:24px;">
+      <div class="card-body">
+        <div class="finish-grid">
+          <div>
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;">
+              <div style="width:54px;height:54px;border-radius:50%;background:#fce7f3;display:flex;align-items:center;justify-content:center;font-size:28px;">🏆</div>
+              <div style="font-size:36px;">🦧 🐘 🐢</div>
+            </div>
+            <div style="font-size:40px;font-weight:900;color:#111827;margin-bottom:14px;">Mission Complete</div>
+            <div style="font-size:19px;font-weight:700;color:#374151;margin-bottom:14px;">Real animals need your help too.</div>
+            <div style="color:#4b5563;line-height:1.75;margin-bottom:22px;">You finished all three rescue missions and turned the campaign into a stronger game experience with timers, combo bursts, popups, stars, and character-guided stages.</div>
+            <div class="btn-row" style="margin-top:0;">
+              <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+              <button id="shareBtn" class="btn btn-secondary">Share Your Score</button>
+            </div>
+          </div>
+          <div style="display:grid;gap:14px;">
+            <div class="stat-box">
+              <div class="small-muted">Final Score</div>
+              <div id="finalScore" class="stat-number" style="font-size:38px;">0</div>
+            </div>
+            <div class="white-box" style="background:#fffbeb;border-color:#fde68a;">
+              <div class="between"><div style="font-weight:800;">Final Star Rating</div><div id="finalStars"></div></div>
+              <div style="height:10px"></div>
+              <div id="finalStarText" style="color:#4b5563;line-height:1.6;"></div>
+            </div>
+            <div class="white-box" style="background:#ecfdf5;border-color:#bbf7d0;">
+              <div style="font-weight:800;margin-bottom:8px;">Overall Rank</div>
+              <div id="overallRank" style="font-size:42px;font-weight:900;color:#059669;">A</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="successModal" class="modal">
+    <div class="modal-card card">
+      <div class="card-body center">
+        <div style="font-size:42px;margin-bottom:12px;">🎉</div>
+        <div id="successEmoji" class="modal-big">🦧</div>
+        <div id="successTitle" class="modal-title">Forest Protected</div>
+        <div id="successText" style="color:#4b5563;line-height:1.7;margin-bottom:16px;"></div>
+        <div style="display:flex;justify-content:center;gap:8px;align-items:center;margin-bottom:16px;">
+          <span class="small-muted">Stars earned</span>
+          <div id="successStars"></div>
+        </div>
+        <div class="white-box" style="background:#ecfdf5;border-color:#bbf7d0;text-align:left;margin-bottom:18px;">
+          <div id="successFact" style="font-size:14px;color:#4b5563;line-height:1.6;"></div>
+        </div>
+        <div class="btn-row" style="justify-content:center;margin-top:0;">
+          <button id="retryLevelModalBtn" class="btn btn-secondary">Retry Level</button>
+          <button id="nextLevelBtn" class="btn btn-primary">Next Level</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="failModal" class="modal">
+    <div class="modal-card card">
+      <div class="card-body center">
+        <div style="font-size:42px;margin-bottom:12px;">❌</div>
+        <div id="failEmoji" class="modal-big">🦧</div>
+        <div class="modal-title">Mission Failed</div>
+        <div id="failText" style="color:#4b5563;line-height:1.7;margin-bottom:16px;"></div>
+        <div class="white-box" style="background:#fff1f2;border-color:#fecdd3;text-align:left;margin-bottom:18px;">
+          <div style="font-size:14px;color:#4b5563;line-height:1.6;">You can retry this stage with full hearts and a fresh timer.</div>
+        </div>
+        <button id="tryAgainModalBtn" class="btn btn-primary">Try Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LEVELS = [
+      {
+        id: 1,
+        title: "Level 1: Save the Orangutan Forest",
+        shortTitle: "Orangutan",
+        emoji: "🦧",
+        theme: "Deforestation Awareness",
+        animal: "Orangutan",
+        animalNote: "Loves tall trees and safe forest homes",
+        helperLine: "Pick the kind actions that keep my forest safe.",
+        timeLimit: 35,
+        intro: "Help the orangutan protect its forest home. Choose actions that stop habitat destruction and support wildlife survival.",
+        successTitle: "Forest Protected",
+        successText: "You helped reduce threats to the orangutan by supporting safe and sustainable actions in the forest.",
+        fact: "Deforestation destroys habitats and forces wildlife to leave the places they need for food, shelter, and safety.",
+        actions: [
+          { text: "Stop illegal logging", correct: true },
+          { text: "Plant new trees", correct: true },
+          { text: "Protect forest habitat", correct: true },
+          { text: "Burn more forest land", correct: false },
+          { text: "Build roads through animal homes", correct: false },
+          { text: "Cut old trees without control", correct: false },
+        ],
+      },
+      {
+        id: 2,
+        title: "Level 2: Protect the Elephant",
+        shortTitle: "Elephant",
+        emoji: "🐘",
+        theme: "Anti-Poaching Mission",
+        animal: "Elephant",
+        animalNote: "Needs safe land and protection from poaching",
+        helperLine: "Please find the traps before I get hurt.",
+        timeLimit: 30,
+        intro: "Search the forest and remove poaching threats. Find the hidden traps and keep the elephant safe from harm.",
+        successTitle: "Elephant Saved",
+        successText: "You removed dangerous traps and helped stop illegal hunting threats in the forest.",
+        fact: "Poaching harms many species and reduces wildlife populations. Protection efforts depend on law enforcement and public awareness.",
+        traps: [true, false, true, false, false, true, false, true, false],
+      },
+      {
+        id: 3,
+        title: "Level 3: Clean the Ocean for the Sea Turtle",
+        shortTitle: "Sea Turtle",
+        emoji: "🐢",
+        theme: "Marine Pollution Cleanup",
+        animal: "Sea Turtle",
+        animalNote: "Needs a clean ocean to swim and feed safely",
+        helperLine: "Clean the plastic, but do not hurt ocean friends.",
+        timeLimit: 40,
+        intro: "Collect plastic waste from the ocean so the sea turtle can swim safely. Avoid clicking sea life.",
+        successTitle: "Ocean Cleared",
+        successText: "You removed dangerous plastic waste and made the ocean safer for marine animals.",
+        fact: "Plastic waste in the sea can injure marine animals or be mistaken for food, causing serious harm.",
+        debris: [
+          { label: "Plastic Bottle", type: "trash" },
+          { label: "Plastic Bag", type: "trash" },
+          { label: "Can", type: "trash" },
+          { label: "Bottle Cap", type: "trash" },
+          { label: "Fish", type: "animal" },
+          { label: "Starfish", type: "animal" },
+          { label: "Coral", type: "animal" },
+          { label: "Plastic Straw", type: "trash" },
+          { label: "Snack Wrapper", type: "trash" },
+        ],
+      },
+    ];
+
+    const state = {
+      started: false,
+      levelIndex: 0,
+      score: 0,
+      completed: [],
+      feedback: "",
+      levelDone: false,
+      gameOver: false,
+      lives: 3,
+      levelStars: {},
+      timeLeft: LEVELS[0].timeLimit,
+      combo: 0,
+      forestPicked: [],
+      trapGrid: shuffleArray(LEVELS[1].traps),
+      trapClicked: [],
+      oceanItems: shuffleArray(LEVELS[2].debris),
+      oceanClicked: [],
+      timerId: null,
+    };
+
+    function shuffleArray(array) {
+      const clone = [...array];
+      for (let i = clone.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [clone[i], clone[j]] = [clone[j], clone[i]];
+      }
+      return clone;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function getStarsFromLives(lives) {
+      return clamp(lives, 1, 3);
+    }
+
+    function getOverallRank(totalStars) {
+      if (totalStars >= 8) return "S";
+      if (totalStars >= 6) return "A";
+      if (totalStars >= 4) return "B";
+      return "C";
+    }
+
+    function currentLevel() {
+      return LEVELS[state.levelIndex];
+    }
+
+    function totalStars() {
+      return Object.values(state.levelStars).reduce((sum, value) => sum + value, 0);
+    }
+
+    function forestCorrectCount() {
+      return currentLevel().id === 1 ? currentLevel().actions.filter(item => item.correct).length : 0;
+    }
+
+    function foundTrapCount() {
+      return state.trapClicked.filter(index => state.trapGrid[index] === true).length;
+    }
+
+    function totalTrapCount() {
+      return state.trapGrid.filter(Boolean).length;
+    }
+
+    function trashRemovedCount() {
+      return state.oceanClicked.filter(index => state.oceanItems[index] && state.oceanItems[index].type === "trash").length;
+    }
+
+    function totalTrashCount() {
+      return state.oceanItems.filter(item => item.type === "trash").length;
+    }
+
+    function clearTimer() {
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+    }
+
+    function startTimer() {
+      clearTimer();
+      state.timerId = setInterval(() => {
+        if (!state.started || state.levelDone || state.gameOver) return;
+        state.timeLeft -= 1;
+        if (state.timeLeft <= 0) {
+          state.timeLeft = 0;
+          state.gameOver = true;
+          state.combo = 0;
+          state.feedback = "Time is up. Your animal helper needs another try.";
+          clearTimer();
+          render();
+          showFailModal();
+          return;
+        }
+        renderHUD();
+      }, 1000);
+    }
+
+    function resetLevelState(levelId) {
+      state.feedback = "";
+      state.levelDone = false;
+      state.gameOver = false;
+      state.lives = 3;
+      state.combo = 0;
+      const target = LEVELS.find(level => level.id === levelId);
+      state.timeLeft = target ? target.timeLimit : 30;
+
+      if (levelId === 1) state.forestPicked = [];
+      if (levelId === 2) {
+        state.trapGrid = shuffleArray(LEVELS[1].traps);
+        state.trapClicked = [];
+      }
+      if (levelId === 3) {
+        state.oceanItems = shuffleArray(LEVELS[2].debris);
+        state.oceanClicked = [];
+      }
+    }
+
+    function startGame() {
+      state.started = true;
+      state.levelIndex = 0;
+      state.score = 0;
+      state.completed = [];
+      state.levelStars = {};
+      resetLevelState(1);
+      hideModals();
+      render();
+      startTimer();
+    }
+
+    function restartCurrentLevel() {
+      resetLevelState(currentLevel().id);
+      hideModals();
+      render();
+      startTimer();
+    }
+
+    function nextLevel() {
+      const nextIndex = state.levelIndex + 1;
+      if (nextIndex < LEVELS.length) {
+        state.levelIndex = nextIndex;
+        resetLevelState(LEVELS[nextIndex].id);
+        hideModals();
+        render();
+        startTimer();
+      }
+    }
+
+    function restartGame() {
+      startGame();
+    }
+
+    function registerSuccess(basePoints, message) {
+      state.combo += 1;
+      const bonus = state.combo >= 2 ? 2 : 0;
+      state.score += basePoints + bonus;
+      state.feedback = bonus > 0 ? `${message} Combo bonus +${bonus}!` : message;
+      render();
+      if (state.combo >= 2) showComboBurst();
+    }
+
+    function registerMistake(penalty, message, gameOverMessage) {
+      state.lives -= 1;
+      state.combo = 0;
+      state.score = Math.max(0, state.score - penalty);
+      if (state.lives <= 0) {
+        state.gameOver = true;
+        state.feedback = gameOverMessage;
+        clearTimer();
+        render();
+        showFailModal();
+        return true;
+      }
+      state.feedback = message;
+      render();
+      return false;
+    }
+
+    function finishLevel() {
+      if (!state.completed.includes(currentLevel().id)) {
+        state.completed.push(currentLevel().id);
+      }
+      state.levelStars[currentLevel().id] = getStarsFromLives(state.lives);
+      state.levelDone = true;
+      state.combo = 0;
+      clearTimer();
+      render();
+
+      if (state.completed.length === LEVELS.length) {
+        document.getElementById("finishCard").classList.remove("hidden");
+        document.getElementById("gameCard").classList.add("hidden");
+        document.getElementById("introCard").classList.add("hidden");
+      } else {
+        showSuccessModal();
+      }
+    }
+
+    function showComboBurst() {
+      const el = document.getElementById("comboBurst");
+      el.classList.remove("hidden");
+      setTimeout(() => el.classList.add("hidden"), 700);
+    }
+
+    function hideModals() {
+      document.getElementById("successModal").classList.remove("show");
+      document.getElementById("failModal").classList.remove("show");
+    }
+
+    function showSuccessModal() {
+      const level = currentLevel();
+      document.getElementById("successEmoji").textContent = level.emoji;
+      document.getElementById("successTitle").textContent = level.successTitle;
+      document.getElementById("successText").textContent = level.successText;
+      document.getElementById("successFact").innerHTML = `<strong style="color:#111827;">Wildlife fact:</strong> ${level.fact}`;
+      document.getElementById("successStars").innerHTML = renderStarsHtml(state.levelStars[level.id] || getStarsFromLives(state.lives), 20);
+      document.getElementById("successModal").classList.add("show");
+    }
+
+    function showFailModal() {
+      document.getElementById("failEmoji").textContent = currentLevel().emoji;
+      document.getElementById("failText").textContent = state.feedback;
+      document.getElementById("failModal").classList.add("show");
+    }
+
+    function renderStarsHtml(value, size = 16) {
+      let html = '<div class="stars">';
+      for (let i = 1; i <= 3; i++) {
+        html += `<span class="star ${i <= value ? 'active' : ''}" style="font-size:${size}px;">⭐</span>`;
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById("dashboardGrid");
+      grid.innerHTML = LEVELS.map(level => {
+        const done = state.completed.includes(level.id);
+        const stars = state.levelStars[level.id] || 0;
+        return `
+          <div class="dashboard-card ${done ? 'done' : ''}">
+            <div class="dash-emoji">${level.emoji}</div>
+            <div class="dash-title">${level.shortTitle}</div>
+            ${renderStarsHtml(stars, 16)}
+          </div>
+        `;
+      }).join("");
+      document.getElementById("campaignProgress").style.width = `${(state.completed.length / LEVELS.length) * 100}%`;
+      document.getElementById("scoreNumber").textContent = state.score;
+      document.getElementById("starTotal").textContent = `${totalStars()}/9`;
+    }
+
+    function renderHUD() {
+      const level = currentLevel();
+      document.getElementById("missionScore").textContent = state.score;
+      document.getElementById("livesText").textContent = `${state.lives}/3`;
+      document.getElementById("heartsWrap").innerHTML = [1,2,3].map(n => `<span class="heart ${n <= state.lives ? 'active' : ''}">❤️</span>`).join("");
+      document.getElementById("timeText").textContent = `${state.timeLeft}s`;
+      document.getElementById("timeText").style.color = state.timeLeft <= 10 ? "#e11d48" : "#111827";
+      document.getElementById("timerProgress").style.width = `${(state.timeLeft / level.timeLimit) * 100}%`;
+      document.getElementById("timerProgress").style.background = state.timeLeft <= 10 ? "linear-gradient(90deg,#fb7185,#f43f5e)" : "linear-gradient(90deg,#22d3ee,#60a5fa)";
+      document.getElementById("feedbackText").textContent = state.feedback || "Complete the mission tasks to protect wildlife and help your animal friend feel safe and happy.";
+      document.getElementById("comboText").textContent = `x${state.combo}`;
+      document.getElementById("comboProgress").style.width = `${Math.min(state.combo * 25, 100)}%`;
+      document.getElementById("helperAvatar").textContent = level.emoji;
+      document.getElementById("helperName").textContent = level.animal;
+      document.getElementById("helperLine").textContent = level.helperLine;
+      document.getElementById("animalNote").textContent = level.animalNote;
+    }
+
+    function renderLevelHeader() {
+      const level = currentLevel();
+      document.getElementById("currentAnimal").textContent = level.emoji;
+      document.getElementById("levelTitle").textContent = level.title;
+      document.getElementById("levelIntro").textContent = level.intro;
+      const pills = [
+        `<span class="pill">Stage ${level.id} / ${LEVELS.length}</span>`,
+        `<span class="pill cyan">${level.theme}</span>`
+      ];
+      if (state.combo >= 2) pills.push(`<span class="pill violet">⚡ ${state.combo} Combo</span>`);
+      document.getElementById("levelPills").innerHTML = pills.join("");
+    }
+
+    function renderForestLevel() {
+      const playArea = document.getElementById("playArea");
+      playArea.innerHTML = `<div class="options-grid">${currentLevel().actions.map((action, index) => {
+        const picked = state.forestPicked.includes(index);
+        const bg = picked ? (action.correct ? '#ecfdf5' : '#fff1f2') : 'white';
+        const border = picked ? (action.correct ? '#bbf7d0' : '#fecdd3') : '#fbcfe8';
+        return `<button class="option-card" data-type="forest" data-index="${index}" style="background:${bg};border-color:${border};"><div class="option-emoji">🪴</div><div style="font-weight:700;line-height:1.5;">${action.text}</div></button>`;
+      }).join("")}</div>`;
+    }
+
+    function renderElephantLevel() {
+      const playArea = document.getElementById("playArea");
+      playArea.innerHTML = `
+        <div class="small-muted">Find all hidden traps in the forest grid and keep the elephant safe.</div>
+        <div class="search-grid">
+          ${state.trapGrid.map((hasTrap, index) => {
+            const clicked = state.trapClicked.includes(index);
+            let label = '🔎 Search';
+            let bg = '#ecfdf5';
+            let border = '#bbf7d0';
+            if (clicked && hasTrap) { label = '🪤 Trap Found'; bg = '#fef3c7'; border = '#fcd34d'; }
+            if (clicked && !hasTrap) { label = '🌿 Safe Area'; bg = '#f3f4f6'; border = '#d1d5db'; }
+            return `<button class="search-cell" data-type="trap" data-index="${index}" style="background:${bg};border-color:${border};">${label}</button>`;
+          }).join("")}
+        </div>
+        <div style="height:12px"></div>
+        <div class="small-muted">Traps removed: <strong style="color:#111827;">${foundTrapCount()}/${totalTrapCount()}</strong></div>
+      `;
+    }
+
+    function renderOceanLevel() {
+      const playArea = document.getElementById("playArea");
+      playArea.innerHTML = `
+        <div class="small-muted">Remove all plastic waste. Avoid clicking sea life.</div>
+        <div style="height:14px"></div>
+        <div class="options-grid">
+          ${state.oceanItems.map((item, index) => {
+            const clicked = state.oceanClicked.includes(index);
+            const isTrash = item.type === 'trash';
+            const bg = clicked ? (isTrash ? '#ecfeff' : '#fff7ed') : 'white';
+            const border = clicked ? (isTrash ? '#a5f3fc' : '#fed7aa') : '#bae6fd';
+            const title = clicked ? (isTrash ? 'Removed' : 'Protected') : item.label;
+            const desc = clicked ? (isTrash ? 'This waste was removed from the ocean.' : 'This is marine life and should stay safe.') : 'Click to inspect';
+            return `<button class="option-card" data-type="ocean" data-index="${index}" style="background:${bg};border-color:${border};"><div class="option-emoji">${isTrash ? '♻️' : '🐠'}</div><div style="font-weight:700;margin-bottom:6px;">${title}</div><div style="font-size:13px;color:#6b7280;line-height:1.45;">${desc}</div></button>`;
+          }).join("")}
+        </div>
+        <div style="height:12px"></div>
+        <div class="small-muted">Plastic removed: <strong style="color:#111827;">${trashRemovedCount()}/${totalTrashCount()}</strong></div>
+      `;
+    }
+
+    function renderPlayArea() {
+      if (currentLevel().id === 1) renderForestLevel();
+      if (currentLevel().id === 2) renderElephantLevel();
+      if (currentLevel().id === 3) renderOceanLevel();
+    }
+
+    function renderFinish() {
+      const stars = totalStars();
+      document.getElementById("finalScore").textContent = state.score;
+      document.getElementById("finalStars").innerHTML = renderStarsHtml(Math.min(3, Math.ceil(stars / 3)), 22);
+      document.getElementById("finalStarText").textContent = `You earned ${stars} stars across all rescue missions.`;
+      document.getElementById("overallRank").textContent = getOverallRank(stars);
+    }
+
+    function render() {
+      renderDashboard();
+      if (!state.started) {
+        document.getElementById("introCard").classList.remove("hidden");
+        document.getElementById("gameCard").classList.add("hidden");
+        document.getElementById("finishCard").classList.add("hidden");
+        document.getElementById("startBtn").textContent = "Start Mission";
+        return;
+      }
+
+      document.getElementById("startBtn").textContent = "Restart Mission";
+      document.getElementById("introCard").classList.add("hidden");
+
+      if (state.completed.length === LEVELS.length) {
+        document.getElementById("gameCard").classList.add("hidden");
+        document.getElementById("finishCard").classList.remove("hidden");
+        renderFinish();
+        return;
+      }
+
+      document.getElementById("gameCard").classList.remove("hidden");
+      document.getElementById("finishCard").classList.add("hidden");
+      renderLevelHeader();
+      renderHUD();
+      renderPlayArea();
+    }
+
+    document.addEventListener("click", (e) => {
+      const target = e.target.closest("button");
+      if (!target) return;
+
+      const type = target.dataset.type;
+      const index = Number(target.dataset.index);
+
+      if (type === "forest") {
+        if (state.levelDone || state.gameOver || state.forestPicked.includes(index)) return;
+        const action = currentLevel().actions[index];
+        state.forestPicked.push(index);
+
+        if (action.correct) {
+          registerSuccess(10, "Great choice. This helps the orangutan keep a safe forest home.");
+        } else {
+          const ended = registerMistake(5, "Oops. That choice harms the forest. Try a kinder action for wildlife.", "The orangutan needs more help. You ran out of hearts on this level.");
+          if (ended) return;
+        }
+
+        const correctPicked = state.forestPicked.filter(i => currentLevel().actions[i].correct).length;
+        if (correctPicked === forestCorrectCount()) finishLevel();
+        else render();
+      }
+
+      if (type === "trap") {
+        if (state.levelDone || state.gameOver || state.trapClicked.includes(index)) return;
+        state.trapClicked.push(index);
+
+        if (state.trapGrid[index]) {
+          registerSuccess(10, "Nice work. You found a trap and made the elephant safer.");
+          const nextFound = foundTrapCount();
+          if (nextFound === totalTrapCount()) finishLevel();
+          else render();
+        } else {
+          registerMistake(3, "No trap here. Keep checking gently and carefully.", "The elephant mission failed this round. You ran out of hearts.");
+        }
+      }
+
+      if (type === "ocean") {
+        if (state.levelDone || state.gameOver || state.oceanClicked.includes(index)) return;
+        state.oceanClicked.push(index);
+
+        if (state.oceanItems[index].type === "trash") {
+          registerSuccess(8, "Good job. You removed plastic and helped the sea turtle.");
+          const nextTrash = trashRemovedCount();
+          if (nextTrash === totalTrashCount()) finishLevel();
+          else render();
+        } else {
+          registerMistake(4, "That is sea life, not trash. Protect ocean animals while cleaning.", "The sea turtle needs another try. You ran out of hearts on this level.");
+        }
+      }
+    });
+
+    document.getElementById("startBtn").addEventListener("click", startGame);
+    document.getElementById("playAgainBtn").addEventListener("click", restartGame);
+    document.getElementById("retryBtn").addEventListener("click", restartCurrentLevel);
+    document.getElementById("retryLevelModalBtn").addEventListener("click", restartCurrentLevel);
+    document.getElementById("tryAgainModalBtn").addEventListener("click", restartCurrentLevel);
+    document.getElementById("nextLevelBtn").addEventListener("click", nextLevel);
+    document.getElementById("meetBtn").addEventListener("click", () => {
+      alert("Your animal team is ready: orangutan, elephant, and sea turtle.");
+    });
+    document.getElementById("shareBtn").addEventListener("click", () => {
+      alert("You can share a screenshot of your score page or upload this HTML to a website host.");
+    });
+
+    window.addEventListener("beforeunload", clearTimer);
+    render();
+  </script>
+</body>
+</html>
